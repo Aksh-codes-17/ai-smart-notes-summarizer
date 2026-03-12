@@ -5,25 +5,55 @@
 
 <title>AI Smart Notes Summarizer</title>
 
-<link rel="stylesheet" href="style.css">
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+background:#0f172a;
+color:white;
+text-align:center;
+padding:40px;
+}
+
+textarea{
+width:80%;
+height:150px;
+padding:10px;
+}
+
+button{
+padding:10px 20px;
+margin-top:10px;
+background:#22c55e;
+border:none;
+color:white;
+cursor:pointer;
+}
+
+ul{
+text-align:left;
+width:60%;
+margin:auto;
+margin-top:20px;
+}
+
+</style>
 
 </head>
 
 <body>
 
-<div class="container">
-
 <h1>AI Smart Notes Summarizer</h1>
 
-<p>Upload a PDF or paste text to generate notes.</p>
+<p>Upload a PDF or paste text</p>
 
-<input type="file" id="pdfFile" accept="application/pdf">
+<input type="file" id="pdfFile">
 
 <br><br>
 
-<textarea id="textInput" placeholder="Or paste paragraph here..."></textarea>
+<textarea id="textInput" placeholder="Or paste paragraph here"></textarea>
 
 <br>
 
@@ -33,9 +63,93 @@
 
 <ul id="output"></ul>
 
-</div>
+<script>
 
-<script src="script.js"></script>
+// PDF LOAD
+document.getElementById("pdfFile").addEventListener("change", function(e){
+
+let file = e.target.files[0];
+
+let reader = new FileReader();
+
+reader.onload = function(){
+
+let typedarray = new Uint8Array(this.result);
+
+pdfjsLib.getDocument(typedarray).promise.then(function(pdf){
+
+let text = "";
+
+let pages = [];
+
+for(let i=1;i<=pdf.numPages;i++){
+
+pages.push(
+
+pdf.getPage(i).then(function(page){
+
+return page.getTextContent().then(function(content){
+
+let strings = content.items.map(item => item.str);
+
+text += strings.join(" ") + " ";
+
+});
+
+})
+
+);
+
+}
+
+Promise.all(pages).then(function(){
+
+document.getElementById("textInput").value = text;
+
+});
+
+});
+
+};
+
+reader.readAsArrayBuffer(file);
+
+});
+
+
+// SUMMARY FUNCTION
+function generateSummary(){
+
+let text = document.getElementById("textInput").value;
+
+let output = document.getElementById("output");
+
+output.innerHTML="";
+
+if(text.trim()==""){
+alert("Please enter text or upload PDF");
+return;
+}
+
+let sentences = text.split(/[.!?]/).filter(s => s.trim().length>20);
+
+sentences.slice(0,5).forEach(function(sentence){
+
+let words = sentence.trim().split(" ");
+
+let short = words.slice(0,8).join(" ") + "...";
+
+let li = document.createElement("li");
+
+li.innerText = short;
+
+output.appendChild(li);
+
+});
+
+}
+
+</script>
 
 </body>
 </html>
