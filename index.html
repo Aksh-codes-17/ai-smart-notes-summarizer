@@ -1,155 +1,95 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
-<title>AI Smart Notes Summarizer</title>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
-
-<style>
-
-body{
-font-family:Arial;
-background:#0f172a;
-color:white;
-text-align:center;
-padding:40px;
-}
-
-textarea{
-width:80%;
-height:150px;
-padding:10px;
-}
-
-button{
-padding:10px 20px;
-margin-top:10px;
-background:#22c55e;
-border:none;
-color:white;
-cursor:pointer;
-}
-
-ul{
-text-align:left;
-width:60%;
-margin:auto;
-margin-top:20px;
-}
-
-</style>
-
+    <title>AI Smart Notes Summarizer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background: #111827; color: white; text-align: center; padding: 40px; }
+        textarea { width: 80%; height: 150px; padding: 10px; border-radius: 8px; border: none; }
+        button { padding: 12px 24px; margin-top: 10px; background: #22c55e; border: none; color: white; cursor: pointer; font-weight: bold; border-radius: 5px; }
+        button:hover { background: #16a34a; }
+        ul { text-align: left; width: 60%; margin: 20px auto; line-height: 1.6; }
+        li { margin-bottom: 10px; background: #1f2937; padding: 10px; border-radius: 5px; list-style-type: none; border-left: 4px solid #22c55e; }
+        h2 { margin-top: 30px; color: #22c55e; }
+    </style>
 </head>
-
 <body>
 
-<h1>AI Smart Notes Summarizer</h1>
+    <h1>AI Smart Notes Summarizer</h1>
+    <p>Upload a PDF or paste text below</p>
 
-<p>Upload a PDF or paste text</p>
+    <input type="file" id="pdfUpload" accept="application/pdf">
+    <br><br>
+    <textarea id="textInput" placeholder="Text will appear here after upload or you can paste it..."></textarea>
+    <br>
+    <button onclick="generateSummary()">Generate Summary</button>
 
-<input type="file" id="pdfFile">
+    <h2>Summary Notes</h2>
+    <ul id="output"></ul>
 
-<br><br>
+    <script>
+        // Set worker path for PDF.js (Required for it to function)
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-<textarea id="textInput" placeholder="Or paste paragraph here"></textarea>
+        // PDF READER
+        document.getElementById("pdfUpload").addEventListener("change", async function(e) {
+            let file = e.target.files[0];
+            if (!file) return;
 
-<br>
+            let reader = new FileReader();
+            reader.onload = async function() {
+                let typedarray = new Uint8Array(this.result);
+                
+                try {
+                    const pdf = await pdfjsLib.getDocument({data: typedarray}).promise;
+                    let fullText = "";
 
-<button onclick="generateSummary()">Generate Summary</button>
+                    // Properly loop through pages and wait for each
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const content = await page.getTextContent();
+                        const strings = content.items.map(item => item.str);
+                        fullText += strings.join(" ") + " ";
+                    }
 
-<h2>Summary Notes</h2>
+                    document.getElementById("textInput").value = fullText.trim();
+                } catch (err) {
+                    console.error("Error reading PDF:", err);
+                    alert("Failed to read PDF. Make sure it's a valid file.");
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        });
 
-<ul id="output"></ul>
+        // SUMMARY FUNCTION
+        function generateSummary() {
+            let text = document.getElementById("textInput").value;
+            let output = document.getElementById("output");
+            output.innerHTML = "";
 
-<script>
+            if (text.trim() === "") {
+                alert("Please enter text or upload a PDF first.");
+                return;
+            }
 
-// PDF LOAD
-document.getElementById("pdfFile").addEventListener("change", function(e){
+            // Split by punctuation and filter out empty/very short strings
+            let sentences = text.split(/[.!?]/).map(s => s.trim()).filter(s => s.length > 15);
 
-let file = e.target.files[0];
+            if (sentences.length === 0) {
+                alert("No readable sentences found.");
+                return;
+            }
 
-let reader = new FileReader();
+            // Take the first 5 meaningful sentences
+            let summaryItems = sentences.slice(0, 5);
 
-reader.onload = function(){
-
-let typedarray = new Uint8Array(this.result);
-
-pdfjsLib.getDocument(typedarray).promise.then(function(pdf){
-
-let text = "";
-
-let pages = [];
-
-for(let i=1;i<=pdf.numPages;i++){
-
-pages.push(
-
-pdf.getPage(i).then(function(page){
-
-return page.getTextContent().then(function(content){
-
-let strings = content.items.map(item => item.str);
-
-text += strings.join(" ") + " ";
-
-});
-
-})
-
-);
-
-}
-
-Promise.all(pages).then(function(){
-
-document.getElementById("textInput").value = text;
-
-});
-
-});
-
-};
-
-reader.readAsArrayBuffer(file);
-
-});
-
-
-// SUMMARY FUNCTION
-function generateSummary(){
-
-let text = document.getElementById("textInput").value;
-
-let output = document.getElementById("output");
-
-output.innerHTML="";
-
-if(text.trim()==""){
-alert("Please enter text or upload PDF");
-return;
-}
-
-let sentences = text.split(/[.!?]/).filter(s => s.trim().length>20);
-
-sentences.slice(0,5).forEach(function(sentence){
-
-let words = sentence.trim().split(" ");
-
-let short = words.slice(0,8).join(" ") + "...";
-
-let li = document.createElement("li");
-
-li.innerText = short;
-
-output.appendChild(li);
-
-});
-
-}
-
-</script>
-
+            summaryItems.forEach(function(sentence) {
+                let li = document.createElement("li");
+                // Removed the "slice(0,7)" logic so you actually see the full summary sentence
+                li.innerText = sentence + ".";
+                output.appendChild(li);
+            });
+        }
+    </script>
 </body>
 </html>
