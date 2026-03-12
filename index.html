@@ -1,32 +1,27 @@
 <!DOCTYPE html>
+
 <html>
 
 <head>
 <title>AI Smart Notes Summarizer</title>
-<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
 <h1>AI Smart Notes Summarizer</h1>
 
-<form method="POST" enctype="multipart/form-data">
-
-<textarea name="notes" placeholder="Paste your notes here..."></textarea>
+<textarea id="notes" placeholder="Paste your notes here..."></textarea>
 
 <br><br>
 
-<input type="file" name="pdf_file">
-
-<br><br>
-
-<button type="submit">Summarize</button>
-
-</form>
+<button onclick="summarizeText()">Summarize</button>
 
 <h2>Summary</h2>
 
-<script src="/static/script.js"></script>
+<p id="result"></p>
+
+<script src="script.js"></script>
 
 </body>
 </html>
