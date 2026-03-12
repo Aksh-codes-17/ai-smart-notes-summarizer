@@ -1,29 +1,84 @@
-function generateSummary(){
+const pdfInput = document.getElementById("pdfFile");
+const textArea = document.getElementById("textInput");
 
-let text=document.getElementById("textInput").value;
-let output=document.getElementById("output");
+pdfInput.addEventListener("change", function(){
 
-output.innerHTML="";
+let file = pdfInput.files[0];
 
-if(text.trim()==""){
-alert("Enter a paragraph");
+if(file.type !== "application/pdf"){
+alert("Please upload a PDF file");
 return;
 }
 
-// split sentences
-let sentences=text.split(/[.!?]/).filter(s=>s.trim().length>0);
+let reader = new FileReader();
 
-// convert to short notes
-sentences.forEach(sentence=>{
+reader.onload = function(){
 
-let words=sentence.trim().split(" ");
+let typedarray = new Uint8Array(this.result);
 
-// make short sentence
-let short=words.slice(0,6).join(" ")+"...";
+pdfjsLib.getDocument(typedarray).promise.then(function(pdf){
 
-let li=document.createElement("li");
+let text = "";
 
-li.innerText=short;
+let pages = [];
+
+for(let i=1;i<=pdf.numPages;i++){
+
+pages.push(
+pdf.getPage(i).then(function(page){
+
+return page.getTextContent().then(function(content){
+
+let strings = content.items.map(item => item.str);
+
+text += strings.join(" ") + " ";
+
+});
+
+})
+);
+
+}
+
+Promise.all(pages).then(function(){
+
+textArea.value = text;
+
+});
+
+});
+
+};
+
+reader.readAsArrayBuffer(file);
+
+});
+
+
+function generateSummary(){
+
+let text = textArea.value;
+
+let output = document.getElementById("output");
+
+output.innerHTML = "";
+
+if(text.trim()==""){
+alert("Enter text or upload PDF");
+return;
+}
+
+let sentences = text.split(/[.!?]/).filter(s=>s.trim().length>20);
+
+sentences.slice(0,5).forEach(sentence=>{
+
+let words = sentence.trim().split(" ");
+
+let shortNote = words.slice(0,8).join(" ") + "...";
+
+let li = document.createElement("li");
+
+li.innerText = shortNote;
 
 output.appendChild(li);
 
