@@ -1,69 +1,32 @@
-function generateSummary() {
+function generateSummary(){
 
-```
-let text = document.getElementById("textInput").value;
-let output = document.getElementById("output");
+let text=document.getElementById("textInput").value;
+let output=document.getElementById("output");
 
-if (text.trim() === "") {
-    alert("Please enter a paragraph");
-    return;
+output.innerHTML="";
+
+if(text.trim()==""){
+alert("Enter a paragraph");
+return;
 }
 
-output.innerHTML = "";
+// split sentences
+let sentences=text.split(/[.!?]/).filter(s=>s.trim().length>0);
 
-// Split sentences
-let sentences = text.match(/[^\.!\?]+[\.!\?]+/g);
+// convert to short notes
+sentences.forEach(sentence=>{
 
-if (!sentences) {
-    alert("Text is too short");
-    return;
-}
+let words=sentence.trim().split(" ");
 
-// Remove punctuation and convert to words
-let words = text.toLowerCase().replace(/[^\w\s]/g, "").split(/\s+/);
+// make short sentence
+let short=words.slice(0,6).join(" ")+"...";
 
-// Common stop words
-let stopWords = ["the","is","in","at","which","on","a","an","and","to","for","of","with","that","this","it","as","by","from"];
+let li=document.createElement("li");
 
-// Count word frequency
-let freq = {};
+li.innerText=short;
 
-words.forEach(word => {
-    if (!stopWords.includes(word)) {
-        freq[word] = (freq[word] || 0) + 1;
-    }
-});
-
-// Score sentences
-let sentenceScores = sentences.map(sentence => {
-
-    let score = 0;
-    let sentenceWords = sentence.toLowerCase().replace(/[^\w\s]/g,"").split(" ");
-
-    sentenceWords.forEach(word => {
-        if (freq[word]) {
-            score += freq[word];
-        }
-    });
-
-    return { sentence: sentence.trim(), score: score };
+output.appendChild(li);
 
 });
-
-// Sort by importance
-sentenceScores.sort((a,b)=> b.score - a.score);
-
-// Take top 3 sentences
-let summary = sentenceScores.slice(0,3);
-
-summary.forEach(item => {
-
-    let li = document.createElement("li");
-    li.innerText = item.sentence;
-
-    output.appendChild(li);
-
-});
-```
 
 }
