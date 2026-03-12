@@ -3,11 +3,9 @@
 <html>
 
 <head>
-<title>AI Smart Notes Generator</title>
+<title>AI Smart Notes Summarizer</title>
 
 <link rel="stylesheet" href="style.css">
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 
 </head>
 
@@ -15,25 +13,19 @@
 
 <div class="container">
 
-<h1>AI Smart Notes Generator</h1>
+<h1>AI Smart Notes Summarizer</h1>
 
-<p class="description">
-Paste an article or upload a PDF to convert it into structured notes.
-</p>
+<p>Paste a paragraph and convert it into simple study notes.</p>
 
-<textarea id="notes" placeholder="Paste article or paragraph here..."></textarea>
+<textarea id="inputText" placeholder="Paste article or paragraph here"></textarea>
 
 <br>
 
-<input type="file" id="pdfFile" accept="application/pdf">
+<button onclick="summarizeText()">Generate Notes</button>
 
-<br>
+<h2>Smart Notes</h2>
 
-<button onclick="loadPDF()">Load PDF</button> <button onclick="generateNotes()">Generate Notes</button>
-
-<h2>Generated Notes</h2>
-
-<div id="result"></div>
+<div id="output"></div>
 
 </div>
 
