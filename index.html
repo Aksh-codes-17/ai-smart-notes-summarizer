@@ -1,51 +1,29 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
 <title>AI Smart Notes Summarizer</title>
 
-<style>
+<link rel="stylesheet" href="style.css">
 
-body{
-font-family: Arial;
-background:#1e293b;
-color:white;
-text-align:center;
-padding:40px;
-}
-
-textarea{
-width:70%;
-height:150px;
-padding:10px;
-}
-
-button{
-margin-top:10px;
-padding:10px 20px;
-background:#22c55e;
-border:none;
-color:white;
-cursor:pointer;
-}
-
-ul{
-margin-top:20px;
-text-align:left;
-display:inline-block;
-}
-
-</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
 
 </head>
 
 <body>
 
+<div class="container">
+
 <h1>AI Smart Notes Summarizer</h1>
 
-<p>Enter a paragraph and generate short notes.</p>
+<p>Upload a PDF or paste text to generate notes.</p>
 
-<textarea id="textInput"></textarea>
+<input type="file" id="pdfFile" accept="application/pdf">
+
+<br><br>
+
+<textarea id="textInput" placeholder="Or paste paragraph here..."></textarea>
 
 <br>
 
@@ -54,6 +32,8 @@ display:inline-block;
 <h2>Summary Notes</h2>
 
 <ul id="output"></ul>
+
+</div>
 
 <script src="script.js"></script>
 
