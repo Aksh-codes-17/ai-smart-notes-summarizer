@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 
 <html>
-
 <head>
-<title>AI Smart Notes Summarizer</title>
 
+<title>AI Smart Notes Summarizer</title>
 <link rel="stylesheet" href="style.css">
 
 </head>
@@ -15,22 +14,21 @@
 
 <h1>AI Smart Notes Summarizer</h1>
 
-<p>Paste a paragraph and convert it into simple study notes.</p>
+<p>Enter a paragraph and generate short notes.</p>
 
-<textarea id="inputText" placeholder="Paste article or paragraph here"></textarea>
+<textarea id="textInput" placeholder="Paste your paragraph here"></textarea>
 
 <br>
 
-<button onclick="summarizeText()">Generate Notes</button>
+<button onclick="generateSummary()">Generate Summary</button>
 
-<h2>Smart Notes</h2>
+<h2>Summary Notes</h2>
 
-<div id="output"></div>
+<ul id="output"></ul>
 
 </div>
 
 <script src="script.js"></script>
 
 </body>
-
 </html>
