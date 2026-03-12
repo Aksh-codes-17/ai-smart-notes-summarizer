@@ -5,10 +5,15 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.corpus import stopwords
 from collections import defaultdict
 
+# Download required NLTK data
 nltk.download('punkt')
 nltk.download('stopwords')
 
 app = Flask(__name__)
+
+# -----------------------------
+# TEXT SUMMARIZATION FUNCTION
+# -----------------------------
 def summarize(text):
 
     sentences = sent_tokenize(text)
@@ -19,7 +24,7 @@ def summarize(text):
     freq = defaultdict(int)
 
     for word in words:
-        if word not in stop_words:
+        if word not in stop_words and word.isalnum():
             freq[word] += 1
 
     sentence_scores = {}
@@ -32,20 +37,33 @@ def summarize(text):
                 else:
                     sentence_scores[sentence] += freq[word]
 
+    # Take top 2 sentences
     summary_sentences = sorted(sentence_scores, key=sentence_scores.get, reverse=True)[:2]
 
     summary = " ".join(summary_sentences)
 
     return summary
+
+
+# -----------------------------
+# PDF TEXT EXTRACTION
+# -----------------------------
 def extract_pdf_text(pdf_file):
 
     reader = PyPDF2.PdfReader(pdf_file)
     text = ""
 
     for page in reader.pages:
-        text += page.extract_text()
+        page_text = page.extract_text()
+        if page_text:
+            text += page_text
 
     return text
+
+
+# -----------------------------
+# MAIN ROUTE
+# -----------------------------
 @app.route("/", methods=["GET", "POST"])
 def index():
 
@@ -54,17 +72,21 @@ def index():
     if request.method == "POST":
 
         text = request.form.get("notes")
-
         pdf = request.files.get("pdf_file")
 
+        # If PDF uploaded
         if pdf and pdf.filename != "":
             text = extract_pdf_text(pdf)
 
-        if text:
+        # Generate summary
+        if text and text.strip() != "":
             summary = summarize(text)
 
     return render_template("index.html", summary=summary)
 
 
+# -----------------------------
+# RUN APP
+# -----------------------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    app.run(debug=True)
