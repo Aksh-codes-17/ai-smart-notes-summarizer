@@ -3,20 +3,24 @@ function summarizeText(){
 let text=document.getElementById("notes").value;
 
 if(text.trim()===""){
-document.getElementById("result").innerText="Please enter some text.";
+alert("Please enter text");
 return;
 }
 
-let sentences=text.split(". ");
+let stopWords=[
+"the","is","in","at","which","on","a","an","and","are",
+"to","for","of","with","that","this","it","as","by","from"
+];
+
+let sentences=text.match(/[^.!?]+[.!?]+/g);
+
 let words=text.toLowerCase().replace(/[^\w\s]/g,"").split(" ");
 
 let frequency={};
 
 words.forEach(word=>{
-if(frequency[word]){
-frequency[word]++;
-}else{
-frequency[word]=1;
+if(!stopWords.includes(word)){
+frequency[word]=(frequency[word]||0)+1;
 }
 });
 
@@ -24,9 +28,9 @@ let scores=[];
 
 sentences.forEach(sentence=>{
 
-let score=0;
+let sentenceWords=sentence.toLowerCase().replace(/[^\w\s]/g,"").split(" ");
 
-let sentenceWords=sentence.toLowerCase().split(" ");
+let score=0;
 
 sentenceWords.forEach(word=>{
 if(frequency[word]){
@@ -40,9 +44,19 @@ scores.push({sentence:sentence,score:score});
 
 scores.sort((a,b)=>b.score-a.score);
 
-let summary=scores.slice(0,3).map(item=>item.sentence).join(". ");
+let summaryLength=Math.max(3,Math.floor(sentences.length*0.3));
 
-document.getElementById("result").innerText=summary;
+let topSentences=scores.slice(0,summaryLength);
+
+let result=document.getElementById("result");
+
+result.innerHTML="";
+
+topSentences.forEach(item=>{
+let li=document.createElement("li");
+li.innerText=item.sentence;
+result.appendChild(li);
+});
 
 }
 
@@ -64,7 +78,6 @@ let typedarray=new Uint8Array(this.result);
 pdfjsLib.getDocument(typedarray).promise.then(function(pdf){
 
 let text="";
-
 let pages=[];
 
 for(let i=1;i<=pdf.numPages;i++){
@@ -86,9 +99,7 @@ text+=item.str+" ";
 }
 
 Promise.all(pages).then(function(){
-
 document.getElementById("notes").value=text;
-
 });
 
 });
