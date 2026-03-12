@@ -1,91 +1,83 @@
-function generateNotes(){
+function summarizeText(){
 
-let text=document.getElementById("notes").value;
+let text = document.getElementById("inputText").value;
 
 if(text.trim()===""){
 alert("Please enter text");
 return;
 }
 
-let sentences=text.split(". ");
+// split sentences
+let sentences = text.split(/[.!?]+/);
 
-let result=document.getElementById("result");
+// stop words
+let stopWords = ["the","is","in","at","which","on","a","an","and","to","for","of","with","that","this","it"];
 
-result.innerHTML="";
+// clean text
+let words = text.toLowerCase().replace(/[^\w\s]/g,"").split(" ");
 
-let title=document.createElement("h3");
-title.innerText="Key Points";
-result.appendChild(title);
+let frequency = {};
 
-let ul=document.createElement("ul");
+// count keyword frequency
+words.forEach(function(word){
 
-sentences.forEach(sentence=>{
+if(!stopWords.includes(word)){
 
-if(sentence.length>40){
+frequency[word] = (frequency[word] || 0) + 1;
 
-let li=document.createElement("li");
+}
 
-li.innerText=sentence.trim();
+});
+
+// score sentences
+let scores = [];
+
+sentences.forEach(function(sentence){
+
+let score = 0;
+
+let sentenceWords = sentence.toLowerCase().split(" ");
+
+sentenceWords.forEach(function(word){
+
+if(frequency[word]){
+
+score += frequency[word];
+
+}
+
+});
+
+scores.push({sentence:sentence.trim(),score:score});
+
+});
+
+// sort sentences
+scores.sort(function(a,b){
+
+return b.score - a.score;
+
+});
+
+// take top 3 sentences
+let important = scores.slice(0,3);
+
+let output = document.getElementById("output");
+
+output.innerHTML = "<h3>Key Points</h3>";
+
+let ul = document.createElement("ul");
+
+important.forEach(function(item){
+
+let li = document.createElement("li");
+
+li.innerText = item.sentence;
 
 ul.appendChild(li);
 
-}
-
 });
 
-result.appendChild(ul);
-
-}
-
-function loadPDF(){
-
-let file=document.getElementById("pdfFile").files[0];
-
-if(!file){
-alert("Upload a PDF file");
-return;
-}
-
-let reader=new FileReader();
-
-reader.onload=function(){
-
-let typedarray=new Uint8Array(this.result);
-
-pdfjsLib.getDocument(typedarray).promise.then(function(pdf){
-
-let text="";
-
-let pages=[];
-
-for(let i=1;i<=pdf.numPages;i++){
-
-pages.push(
-pdf.getPage(i).then(function(page){
-
-return page.getTextContent().then(function(content){
-
-content.items.forEach(item=>{
-text+=item.str+" ";
-});
-
-});
-
-})
-);
-
-}
-
-Promise.all(pages).then(function(){
-
-document.getElementById("notes").value=text;
-
-});
-
-});
-
-};
-
-reader.readAsArrayBuffer(file);
+output.appendChild(ul);
 
 }
