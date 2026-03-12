@@ -1,87 +1,71 @@
-const pdfInput = document.getElementById("pdfFile");
-const textArea = document.getElementById("textInput");
+// 1. Point to the worker (CRITICAL: PDF.js cannot run without this)
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-pdfInput.addEventListener("change", function(){
+// PDF READER
+document.getElementById("pdfUpload").addEventListener("change", async function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
 
-let file = pdfInput.files[0];
+    // Show a loading state in the textarea
+    const textInput = document.getElementById("textInput");
+    textInput.value = "Reading PDF... please wait...";
 
-if(file.type !== "application/pdf"){
-alert("Please upload a PDF file");
-return;
-}
+    const reader = new FileReader();
+    reader.onload = async function() {
+        try {
+            const typedarray = new Uint8Array(this.result);
+            
+            // Load the PDF document
+            const pdf = await pdfjsLib.getDocument({data: typedarray}).promise;
+            let fullText = "";
 
-let reader = new FileReader();
+            // Loop through every page
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+                
+                // Extract strings and join them
+                const strings = content.items.map(item => item.str);
+                fullText += strings.join(" ") + "\n\n";
+            }
 
-reader.onload = function(){
+            // Push the final text to the textarea
+            textInput.value = fullText.trim();
+            
+            if (fullText.trim() === "") {
+                alert("This PDF seems to be scanned (an image) or empty. No text could be extracted.");
+            }
 
-let typedarray = new Uint8Array(this.result);
-
-pdfjsLib.getDocument(typedarray).promise.then(function(pdf){
-
-let text = "";
-
-let pages = [];
-
-for(let i=1;i<=pdf.numPages;i++){
-
-pages.push(
-pdf.getPage(i).then(function(page){
-
-return page.getTextContent().then(function(content){
-
-let strings = content.items.map(item => item.str);
-
-text += strings.join(" ") + " ";
-
+        } catch (err) {
+            console.error("PDF Error: ", err);
+            alert("Error processing PDF. Try a different file.");
+            textInput.value = "";
+        }
+    };
+    
+    reader.readAsArrayBuffer(file);
 });
 
-})
-);
+// SUMMARY FUNCTION (Keep this as is)
+function generateSummary() {
+    let text = document.getElementById("textInput").value;
+    let output = document.getElementById("output");
+    output.innerHTML = "";
 
-}
+    if (text.trim() === "" || text.includes("Reading PDF...")) {
+        alert("Please wait for the PDF to load or enter text.");
+        return;
+    }
 
-Promise.all(pages).then(function(){
+    // Split into sentences and filter out tiny fragments
+    let sentences = text.split(/[.!?]/).map(s => s.trim()).filter(s => s.length > 20);
+    
+    // Take up to 5 sentences
+    let summaryList = sentences.slice(0, 5);
 
-textArea.value = text;
-
-});
-
-});
-
-};
-
-reader.readAsArrayBuffer(file);
-
-});
-
-
-function generateSummary(){
-
-let text = textArea.value;
-
-let output = document.getElementById("output");
-
-output.innerHTML = "";
-
-if(text.trim()==""){
-alert("Enter text or upload PDF");
-return;
-}
-
-let sentences = text.split(/[.!?]/).filter(s=>s.trim().length>20);
-
-sentences.slice(0,5).forEach(sentence=>{
-
-let words = sentence.trim().split(" ");
-
-let shortNote = words.slice(0,8).join(" ") + "...";
-
-let li = document.createElement("li");
-
-li.innerText = shortNote;
-
-output.appendChild(li);
-
-});
-
+    summaryList.forEach(sentence => {
+        let li = document.createElement("li");
+        li.innerText = sentence + ".";
+        output.appendChild(li);
+    });
 }
