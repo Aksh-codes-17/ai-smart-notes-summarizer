@@ -5,23 +5,39 @@
 <head>
 <title>AI Smart Notes Summarizer</title>
 <link rel="stylesheet" href="style.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
 </head>
 
 <body>
 
+<div class="container">
+
 <h1>AI Smart Notes Summarizer</h1>
 
-<textarea id="notes" placeholder="Paste your notes here..."></textarea>
+<p class="description">
+Upload a PDF or paste text to generate a smart summary.
+</p>
 
-<br><br>
+<textarea id="notes" placeholder="Paste your notes or article here..."></textarea>
 
-<button onclick="summarizeText()">Summarize</button>
+<br>
+
+<input type="file" id="pdfFile" accept="application/pdf">
+
+<br>
+
+<button onclick="loadPDF()">Load PDF</button> <button onclick="summarizeText()">Summarize</button>
 
 <h2>Summary</h2>
 
-<p id="result"></p>
+<p id="result">Summary will appear here...</p>
+
+</div>
 
 <script src="script.js"></script>
 
 </body>
+
 </html>
