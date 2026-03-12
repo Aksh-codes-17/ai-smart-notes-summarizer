@@ -3,7 +3,7 @@
 <html>
 
 <head>
-<title>AI Smart Notes Summarizer</title>
+<title>AI Smart Notes Generator</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -15,13 +15,13 @@
 
 <div class="container">
 
-<h1>AI Smart Notes Summarizer</h1>
+<h1>AI Smart Notes Generator</h1>
 
 <p class="description">
-Upload a PDF or paste text to generate a point-by-point summary.
+Paste an article or upload a PDF to convert it into structured notes.
 </p>
 
-<textarea id="notes" placeholder="Paste article or notes here..."></textarea>
+<textarea id="notes" placeholder="Paste article or paragraph here..."></textarea>
 
 <br>
 
@@ -29,11 +29,11 @@ Upload a PDF or paste text to generate a point-by-point summary.
 
 <br>
 
-<button onclick="loadPDF()">Load PDF</button> <button onclick="summarizeText()">Summarize</button>
+<button onclick="loadPDF()">Load PDF</button> <button onclick="generateNotes()">Generate Notes</button>
 
-<h2>Summary</h2>
+<h2>Generated Notes</h2>
 
-<ul id="result"></ul>
+<div id="result"></div>
 
 </div>
 
