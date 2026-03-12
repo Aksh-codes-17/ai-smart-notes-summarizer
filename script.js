@@ -1,31 +1,69 @@
 function generateSummary() {
-    let text = document.getElementById("textInput").value;
-    let output = document.getElementById("output");
 
-    if (text.trim() === "") {
-        alert("Please enter a paragraph");
-        return;
+```
+let text = document.getElementById("textInput").value;
+let output = document.getElementById("output");
+
+if (text.trim() === "") {
+    alert("Please enter a paragraph");
+    return;
+}
+
+output.innerHTML = "";
+
+// Split sentences
+let sentences = text.match(/[^\.!\?]+[\.!\?]+/g);
+
+if (!sentences) {
+    alert("Text is too short");
+    return;
+}
+
+// Remove punctuation and convert to words
+let words = text.toLowerCase().replace(/[^\w\s]/g, "").split(/\s+/);
+
+// Common stop words
+let stopWords = ["the","is","in","at","which","on","a","an","and","to","for","of","with","that","this","it","as","by","from"];
+
+// Count word frequency
+let freq = {};
+
+words.forEach(word => {
+    if (!stopWords.includes(word)) {
+        freq[word] = (freq[word] || 0) + 1;
     }
+});
 
-    output.innerHTML = "";
+// Score sentences
+let sentenceScores = sentences.map(sentence => {
 
-    // 1. Split text into sentences and clean them up
-    let sentences = text.split(/[.!?]/).filter(s => s.trim().length > 5);
-    
-    // 2. Define "Important" keywords to look for
-    const keywords = ["essential", "priority", "important", "key", "innovation", "skills", "demand", "workflow"];
+    let score = 0;
+    let sentenceWords = sentence.toLowerCase().replace(/[^\w\s]/g,"").split(" ");
 
-    // 3. Filter sentences that contain these keywords OR are the first/last sentence
-    let summaryPoints = sentences.filter((sentence, index) => {
-        const lowerSentence = sentence.toLowerCase();
-        const hasKeyword = keywords.some(word => lowerSentence.includes(word));
-        return index === 0 || hasKeyword; // Keep the 1st sentence + sentences with keywords
+    sentenceWords.forEach(word => {
+        if (freq[word]) {
+            score += freq[word];
+        }
     });
 
-    // 4. Limit to a maximum of 3 points for brevity
-    summaryPoints.slice(0, 3).forEach(point => {
-        let li = document.createElement("li");
-        li.innerText = point.trim() + ".";
-        output.appendChild(li);
-    });
+    return { sentence: sentence.trim(), score: score };
+
+});
+
+// Sort by importance
+sentenceScores.sort((a,b)=> b.score - a.score);
+
+// Take top 3 sentences
+let summary = sentenceScores.slice(0,3);
+
+summary.forEach(item => {
+
+    let li = document.createElement("li");
+    li.innerText = item.sentence;
+
+    output.appendChild(li);
+
+});
+```
+
 }
