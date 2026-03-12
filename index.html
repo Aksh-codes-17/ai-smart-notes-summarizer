@@ -1,22 +1,51 @@
 <!DOCTYPE html>
-
 <html>
 <head>
 
 <title>AI Smart Notes Summarizer</title>
-<link rel="stylesheet" href="style.css">
+
+<style>
+
+body{
+font-family: Arial;
+background:#1e293b;
+color:white;
+text-align:center;
+padding:40px;
+}
+
+textarea{
+width:70%;
+height:150px;
+padding:10px;
+}
+
+button{
+margin-top:10px;
+padding:10px 20px;
+background:#22c55e;
+border:none;
+color:white;
+cursor:pointer;
+}
+
+ul{
+margin-top:20px;
+text-align:left;
+display:inline-block;
+}
+
+</style>
 
 </head>
 
 <body>
 
-<div class="container">
-
 <h1>AI Smart Notes Summarizer</h1>
 
 <p>Enter a paragraph and generate short notes.</p>
 
-<textarea id="textInput" placeholder="Paste your paragraph here"></textarea>
+<textarea id="textInput"></textarea>
 
 <br>
 
@@ -25,8 +54,6 @@
 <h2>Summary Notes</h2>
 
 <ul id="output"></ul>
-
-</div>
 
 <script src="script.js"></script>
 
